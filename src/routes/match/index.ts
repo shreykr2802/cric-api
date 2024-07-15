@@ -13,7 +13,6 @@ const getData = async (matchUrl: string) => {
 
     await page.goto(matchUrl);
     await page.setViewport({ width: 414, height: 896 });
-    page.setDefaultNavigationTimeout(0);
 
     const matchInfo = [];
 

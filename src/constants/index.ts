@@ -130,7 +130,7 @@ const dataAndSelector = [
   },
 ];
 
-const dataAndSelectorLiveNatch = [
+const dataAndSelectorLiveMatch = [
   {
     title: "Title",
     selector:
@@ -159,7 +159,7 @@ const dataAndSelectorLiveNatch = [
   {
     title: "Team2 - Score",
     selector:
-      "#main-container > div.lg\\:ds-container.lg\\:ds-mx-auto.lg\\:ds-px-5.lg\\:ds-pt-4 > div > div > div:nth-child(1) > div:nth-child(2) > div.ds-w-full.ds-bg-fill-content-prime.ds-overflow-hidden > div > div:nth-child(1) > div > div > div > div > div:nth-child(2) > div > div.ci-team-score.ds-flex.ds-justify-between.ds-items-center.ds-text-typo.ds-opacity-50.ds-mb-1 > div.ds-text-compact-m.ds-text-typo.ds-text-right.ds-whitespace-nowrap",
+      "#main-container > div.lg\\:ds-container.lg\\:ds-mx-auto.lg\\:ds-px-5.lg\\:ds-pt-4 > div > div > div:nth-child(1) > div:nth-child(2) > div.ds-w-full.ds-bg-fill-content-prime.ds-overflow-hidden > div > div:nth-child(1) > div > div > div > div > div:nth-child(2) > div > div:nth-child(2) > div.ds-text-compact-m.ds-text-typo.ds-text-right.ds-whitespace-nowrap",
   },
   {
     title: "Toss",
@@ -195,7 +195,9 @@ const dataAndSelectorLiveNatch = [
     title: "Timeline",
     selector:
       "#main-container > div.lg\\:ds-container.lg\\:ds-mx-auto.lg\\:ds-px-5.lg\\:ds-pt-4 > div > div > div:nth-child(2) > div:nth-child(4) > div.ds-mb-2 > div:nth-child(1) > div > div:nth-child(4)",
+    backupSelector:
+      "#main-container > div.lg\\:ds-container.lg\\:ds-mx-auto.lg\\:ds-px-5.lg\\:ds-pt-4 > div > div > div:nth-child(2) > div:nth-child(4) > div.ds-mb-2 > div:nth-child(1) > div > div:nth-child(5)",
   },
 ];
 
-export { dataAndSelector, dataAndSelectorLiveNatch };
+export { dataAndSelector, dataAndSelectorLiveMatch };

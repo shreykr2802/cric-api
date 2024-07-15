@@ -1,7 +1,7 @@
 import Express, { Request, Response, Router } from "express";
 import puppeteer, { Browser } from "puppeteer";
 import apicache from "apicache";
-import { dataAndSelectorLiveNatch } from "../../constants";
+import { dataAndSelectorLiveMatch } from "../../constants";
 
 const router: Express.Router = Router();
 
@@ -13,12 +13,14 @@ const getData = async (matchUrl: string) => {
 
     await page.goto(matchUrl);
     await page.setViewport({ width: 414, height: 896 });
-    page.setDefaultNavigationTimeout(0);
 
     const matchInfo = [];
 
-    for (let data of dataAndSelectorLiveNatch) {
-      const pageData = await page.$(data.selector);
+    for (let data of dataAndSelectorLiveMatch) {
+      let pageData = await page.$(data.selector);
+      if(!pageData && data.backupSelector) {
+        pageData = await page.$(data.backupSelector);
+      }
       matchInfo.push({
         title: data.title,
         value: await pageData?.evaluate((el) => (el as HTMLElement).innerText),
