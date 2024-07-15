@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "bun x puppeteer-core install",
+    "postinstall": "npx puppeteer-core install",
     "start": "node dist/index.js",
     "dev": "bun --hot src/index.ts",
     "build": "tsc"
