@@ -1,6 +1,8 @@
 import Express, { Request, Response, Router } from "express";
-import puppeteer, { Browser, PuppeteerError } from "puppeteer";
 import apicache from "apicache";
+import chromium from "chrome-aws-lambda";
+import puppeteer, { Browser } from "puppeteer-core";
+import { PuppeteerError } from "puppeteer";
 
 const router: Express.Router = Router();
 
@@ -8,8 +10,9 @@ const getData = async () => {
   let browser: Browser | null = null;
   try {
     browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: chromium.args,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
     });
     const page = await browser.newPage();
     await page.setCacheEnabled(false);
@@ -45,7 +48,7 @@ router.get(
       res.status(200).json(liveMatches);
     } catch (err: unknown) {
       console.log(err);
-      console.log("----", (err as PuppeteerError).name);
+      console.log("----", (err as PuppeteerError));
       res.status(500).send("Error getting match details");
     }
   }
