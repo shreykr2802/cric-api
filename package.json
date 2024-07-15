@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "bun src/index.ts",
     "dev": "bun --hot src/index.ts",
-    "testP": "bun src/testP.ts"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
