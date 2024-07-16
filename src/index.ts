@@ -4,11 +4,14 @@ import home from "./routes/home";
 import live from "./routes/live";
 import match from "./routes/match";
 import livematch from "./routes/livematch";
+import { checkSecret } from './routes/utils';
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
+
+app.use(checkSecret);
 
 app.use('/', home);
 

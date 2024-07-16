@@ -1,15 +1,17 @@
 import Express, { Request, Response, Router } from "express";
-import puppeteer, { Browser } from "puppeteer";
+import { Page as PuppeteerPage } from "puppeteer";
 import apicache from "apicache";
 import { dataAndSelectorLiveMatch } from "../../constants";
+import { UnifiedBrowser } from "../../types";
+import { getPuppeteerLaunch } from "../utils";
 
 const router: Express.Router = Router();
 
 const getData = async (matchUrl: string) => {
-  let browser: Browser | null = null;
+  let browser: UnifiedBrowser | null = null;
   try {
-    browser = await puppeteer.launch();
-    const page = await browser.newPage();
+    browser = await getPuppeteerLaunch();
+    const page: PuppeteerPage = await browser.newPage() as PuppeteerPage;
 
     await page.goto(matchUrl);
     await page.setViewport({ width: 414, height: 896 });
