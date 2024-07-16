@@ -1,17 +1,16 @@
 import Express, { Request, Response, Router } from "express";
-import puppeteer, { Browser, PuppeteerError } from "puppeteer";
 import apicache from "apicache";
+import { Page as PuppeteerPage } from "puppeteer";
+import { getPuppeteerLaunch } from "../utils";
+import { UnifiedBrowser } from "../../types";
 
 const router: Express.Router = Router();
 
 const getData = async () => {
-  let browser: Browser | null = null;
+  let browser: UnifiedBrowser | null = null;
   try {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    const page = await browser.newPage();
+    browser = await getPuppeteerLaunch();
+    const page: PuppeteerPage = await browser.newPage() as PuppeteerPage;
     await page.setCacheEnabled(false);
     await page.goto("https://www.espncricinfo.com/live-cricket-score");
     await page.setViewport({ width: 414, height: 896 });
@@ -45,7 +44,6 @@ router.get(
       res.status(200).json(liveMatches);
     } catch (err: unknown) {
       console.log(err);
-      console.log("----", (err as PuppeteerError).name);
       res.status(500).send("Error getting match details");
     }
   }
