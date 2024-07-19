@@ -20,7 +20,7 @@ const getData = async (matchUrl: string) => {
 
     for (let data of dataAndSelectorLiveMatch) {
       let pageData = await page.$(data.selector);
-      if(!pageData && data.backupSelector) {
+      if (!pageData && data.backupSelector) {
         pageData = await page.$(data.backupSelector);
       }
       matchInfo.push({
@@ -35,6 +35,37 @@ const getData = async (matchUrl: string) => {
     await browser?.close();
   }
 };
+
+// // SSE route
+// router.get("/live-updates", async (req: Request, res: Response) => {
+//   res.setHeader("Content-Type", "text/event-stream");
+//   res.setHeader("Cache-Control", "no-cache");
+//   res.setHeader("Connection", "keep-alive");
+
+//   const matchUrl: string = req.query.matchUrl as string;
+
+//   const sendUpdate = async () => {
+//     try {
+//       const matchScore = await getData(matchUrl);
+//       res.write(`data: ${JSON.stringify(matchScore)}\n\n`);
+//     } catch (err) {
+//       console.log(err);
+//       res.write(`data: ${JSON.stringify({ error: "Error getting match details" })}\n\n`);
+//     }
+//   };
+
+//   // Send an update every 10 seconds
+//   const interval = setInterval(sendUpdate, 2000);
+
+//   // Close the connection when the client disconnects
+//   req.on("close", () => {
+//     clearInterval(interval);
+//     res.end();
+//   });
+
+//   // Send the first update immediately
+//   sendUpdate();
+// });
 
 router.get(
   "/",
