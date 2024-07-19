@@ -11,7 +11,7 @@ const getData = async (matchUrl: string) => {
   let browser: UnifiedBrowser | null = null;
   try {
     browser = await getPuppeteerLaunch();
-    const page: PuppeteerPage = await browser.newPage() as PuppeteerPage;
+    const page: PuppeteerPage = (await browser.newPage()) as PuppeteerPage;
 
     await page.goto(matchUrl);
     await page.setViewport({ width: 414, height: 896 });
@@ -36,50 +36,55 @@ const getData = async (matchUrl: string) => {
   }
 };
 
-// // SSE route
-// router.get("/live-updates", async (req: Request, res: Response) => {
-//   res.setHeader("Content-Type", "text/event-stream");
-//   res.setHeader("Cache-Control", "no-cache");
-//   res.setHeader("Connection", "keep-alive");
-
-//   const matchUrl: string = req.query.matchUrl as string;
-
-//   const sendUpdate = async () => {
-//     try {
-//       const matchScore = await getData(matchUrl);
-//       res.write(`data: ${JSON.stringify(matchScore)}\n\n`);
-//     } catch (err) {
-//       console.log(err);
-//       res.write(`data: ${JSON.stringify({ error: "Error getting match details" })}\n\n`);
-//     }
-//   };
-
-//   // Send an update every 10 seconds
-//   const interval = setInterval(sendUpdate, 2000);
-
-//   // Close the connection when the client disconnects
-//   req.on("close", () => {
-//     clearInterval(interval);
-//     res.end();
-//   });
-
-//   // Send the first update immediately
-//   sendUpdate();
-// });
-
-router.get(
-  "/",
-  apicache.middleware("1 minute"),
-  async function (req: Request, res: Response) {
-    try {
-      const matchUrl: string = req.query.matchUrl as string;
-      const matchScore = await getData(matchUrl);
-      res.status(200).json(matchScore);
-    } catch (err) {
-      console.log(err);
-      res.status(500).send("Error getting match details");
+router
+  .get(
+    "/",
+    apicache.middleware("1 minute"),
+    async function (req: Request, res: Response) {
+      try {
+        const matchUrl: string = req.query.matchUrl as string;
+        const matchScore = await getData(matchUrl);
+        res.status(200).json(matchScore);
+      } catch (err) {
+        console.log(err);
+        res.status(500).send("Error getting match details");
+      }
     }
-  }
-);
+  )
+  .get("/liveUpdates", async function (req: Request, res: Response) {
+    const headers = {
+      "Content-Type": "text/event-stream",
+      Connection: "keep-alive",
+      "Cache-Control": "no-cache",
+    };
+    res.writeHead(200, headers);
+
+    const timeout = 30 * 1000;
+
+    const matchUrl: string = req.query.matchUrl as string;
+
+    const sendUpdate = async (str?: string) => {
+      try {
+        const matchScore = await getData(matchUrl);
+        res.write(`data: ${JSON.stringify(matchScore)}\n\n`);
+      } catch (err) {
+        console.log(err);
+        res.write(
+          `data: ${JSON.stringify({
+            error: "Error getting match details",
+          })}\n\n`
+        );
+      }
+    };
+
+    sendUpdate();
+
+    const interval = setInterval(sendUpdate, timeout);
+
+    req.on("close", () => {
+      clearInterval(interval);
+      res.end();
+    });
+  });
 
 export default router;

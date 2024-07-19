@@ -10,7 +10,6 @@ const checkSecret = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getPuppeteerLaunch = async () => {
-  console.log("process.env.ENVIRONEMNT", process.env.ENVIRONEMNT);
   return process.env.ENVIRONEMNT !== "dev"
     ? await puppeteerCore.launch({
         args: Chromium.args,
