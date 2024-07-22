@@ -1,11 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "src/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
@@ -15,7 +9,8 @@
   "functions": {
     "src/index.ts": {
       "memory": 3009,
-      "maxDuration": 120
+      "maxDuration": 120,
+      "use": "@vercel/node"
     }
   }
 }
