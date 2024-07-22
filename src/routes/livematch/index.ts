@@ -32,6 +32,7 @@ const getData = async (matchUrl: string) => {
     await browser.close();
     return matchInfo;
   } catch (err) {
+    console.log("getData Error", err)
     if ((err as unknown as PuppeteerError).message.includes("30000 ms")) {
       getData(matchUrl);
     }
