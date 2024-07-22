@@ -1,5 +1,5 @@
 import Express, { Request, Response, Router } from "express";
-import { Page as PuppeteerPage } from "puppeteer";
+import { PuppeteerError, Page as PuppeteerPage } from "puppeteer";
 import apicache from "apicache";
 import { dataAndSelectorLiveMatch } from "../../constants";
 import { UnifiedBrowser } from "../../types";
@@ -31,6 +31,10 @@ const getData = async (matchUrl: string) => {
 
     await browser.close();
     return matchInfo;
+  } catch (err) {
+    if ((err as unknown as PuppeteerError).message.includes("30000 ms")) {
+      getData(matchUrl);
+    }
   } finally {
     await browser?.close();
   }
