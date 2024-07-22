@@ -12,7 +12,7 @@ const getData = async (matchUrl: string) => {
   try {
     browser = await getPuppeteerLaunch();
     const page: PuppeteerPage = (await browser.newPage()) as PuppeteerPage;
-
+    page.setDefaultNavigationTimeout(0);
     await page.goto(matchUrl);
     await page.setViewport({ width: 414, height: 896 });
 
