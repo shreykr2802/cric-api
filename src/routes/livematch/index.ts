@@ -64,11 +64,11 @@ router
     };
     res.writeHead(200, headers);
 
-    const timeout = 30 * 1000;
+    const timeout = 60 * 1000;
 
     const matchUrl: string = req.query.matchUrl as string;
 
-    const sendUpdate = async (str?: string) => {
+    const sendUpdate = async () => {
       try {
         const matchScore = await getData(matchUrl);
         res.write(`data: ${JSON.stringify(matchScore)}\n\n`);
