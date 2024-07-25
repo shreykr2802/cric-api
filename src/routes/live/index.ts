@@ -1,37 +1,50 @@
 import Express, { Request, Response, Router } from "express";
 import apicache from "apicache";
-import { Page as PuppeteerPage } from "puppeteer";
-import { getPuppeteerLaunch } from "../utils";
-import { UnifiedBrowser } from "../../types";
+import { LiveMatchesDetails } from "../../types";
+import * as cheerio from "cheerio";
 
 const router: Express.Router = Router();
 
 const getData = async () => {
-  let browser: UnifiedBrowser | null = null;
   try {
-    browser = await getPuppeteerLaunch();
-    const page: PuppeteerPage = await browser.newPage() as PuppeteerPage;
-    await page.setCacheEnabled(false);
-    await page.goto("https://www.espncricinfo.com/live-cricket-score");
-    await page.setViewport({ width: 414, height: 896 });
-
-    const pageData = await page.$$(
-      "#main-container > div.lg\\:ds-container.lg\\:ds-mx-auto.lg\\:ds-px-5 > div.ds-flex.ds-space-x-5 > div > div:nth-child(1) > div:nth-child(1) > div > div:nth-child(1) > div > div.ds-p-0 > div > div > div > div.ds-px-4.ds-py-3"
+    const liveMatchData: LiveMatchesDetails[] = [];
+    const response = await fetch(
+      `${process.env.BASE_URL}/cricket-match/live-scores`
     );
-
-    const matchDetailsPromise = pageData.map(
-      async (data) =>
-        await data.evaluate((el) => ({
-          link: (el.children[0] as HTMLAnchorElement).href,
-          innerText: el.innerText.replaceAll(/\n+/gm, "&&"),
-        }))
-    );
-
-    const matchDetails = await Promise.all(matchDetailsPromise);
-    await browser.close();
-    return matchDetails;
-  } finally {
-    await browser?.close();
+    const htmlContent = await response.text();
+    const $ = cheerio.load(htmlContent);
+    const element = $('*[class="flex flex-col gap-px"]');
+    element.children().each((index, ele) => {
+      const matchDetail = $(ele).find(".flex.items-center.gap-1");
+      const matchLink = $(ele).find("a").attr("href");
+      const team1 = $(ele).find(
+        ".text-cbTxtPrim.dark\\:text-cbWhite.whitespace-nowrap"
+      );
+      const team1Score = $(ele).find(
+        $(".font-medium.text-cbTxtPrim.dark\\:text-cbWhite.w-1\\/2")
+      );
+      const team2 = $(ele).find(
+        ".text-cbTxtSec.dark\\:text-cbTxtSec.whitespace-nowrap"
+      );
+      const team2Score = $(ele).find(
+        ".font-medium.text-cbTxtSec.dark\\:text-cbWhite.w-1\\/2"
+      );
+      const matchStatus = $(ele).find(".text-cbLive.dark\\:text-cbLiveDark");
+      liveMatchData.push({
+        id: index + 1,
+        matchDetail: matchDetail.text(),
+        matchLink: matchLink,
+        team1: team1.text(),
+        team2: team2.text(),
+        team1Score: team1Score.text(),
+        team2Score: team2Score.text(),
+        matchStatus: matchStatus.text(),
+      });
+    });
+    return liveMatchData;
+  } catch (err) {
+    console.log("error", err);
+    return err;
   }
 };
 

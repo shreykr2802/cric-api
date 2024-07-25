@@ -1,3 +1,3 @@
 ## Cric API
 
-Created to learn puppeteer and how scrapping works.
+Created to get Cricket match data.

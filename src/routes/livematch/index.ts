@@ -1,62 +1,20 @@
 import Express, { Request, Response, Router } from "express";
-import { PuppeteerError, Page as PuppeteerPage } from "puppeteer";
 import apicache from "apicache";
-import { dataAndSelectorLiveMatch } from "../../constants";
-import { UnifiedBrowser } from "../../types";
-import { getPuppeteerLaunch } from "../utils";
 
 const router: Express.Router = Router();
 
 const getData = async (matchUrl: string) => {
-  let browser: UnifiedBrowser | null = null;
   try {
-    browser = await getPuppeteerLaunch();
-    const page: PuppeteerPage = (await browser.newPage()) as PuppeteerPage;
-
-    await page.goto(matchUrl, { timeout: 0 });
-    await page.setViewport({ width: 414, height: 896 });
-
-    const matchInfo = [];
-
-    for (let data of dataAndSelectorLiveMatch) {
-      let pageData = await page.$(data.selector);
-      if (!pageData && data.backupSelector) {
-        pageData = await page.$(data.backupSelector);
-      }
-      matchInfo.push({
-        title: data.title,
-        value: await pageData?.evaluate((el) => (el as HTMLElement).innerText),
-      });
-    }
-
-    await browser.close();
-    return matchInfo;
+    return matchUrl;
   } catch (err) {
-    console.log("getData Error", err)
-    if ((err as unknown as PuppeteerError).message.includes("30000 ms")) {
-      getData(matchUrl);
-    }
-  } finally {
-    await browser?.close();
+    console.error(err);
   }
 };
 
-router
-  .get(
-    "/",
-    apicache.middleware("1 minute"),
-    async function (req: Request, res: Response) {
-      try {
-        const matchUrl: string = req.query.matchUrl as string;
-        const matchScore = await getData(matchUrl);
-        res.status(200).json(matchScore);
-      } catch (err) {
-        console.log(err);
-        res.status(500).send("Error getting match details");
-      }
-    }
-  )
-  .get("/liveUpdates", async function (req: Request, res: Response) {
+router.get(
+  "/",
+  apicache.middleware("1 minute"),
+  async function (req: Request, res: Response) {
     const headers = {
       "Content-Type": "text/event-stream",
       Connection: "keep-alive",
@@ -90,6 +48,7 @@ router
       clearInterval(interval);
       res.end();
     });
-  });
+  }
+);
 
 export default router;
