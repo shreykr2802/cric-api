@@ -2,6 +2,8 @@ import Express, { Request, Response, Router } from "express";
 import apicache from "apicache";
 import { LiveMatchesDetails } from "../../types";
 import * as cheerio from "cheerio";
+import { liveSelectors } from "../../constants";
+import randomUserAgent from "random-useragent";
 
 const router: Express.Router = Router();
 
@@ -9,36 +11,41 @@ const getData = async () => {
   try {
     const liveMatchData: LiveMatchesDetails[] = [];
     const response = await fetch(
-      `${process.env.BASE_URL}/cricket-match/live-scores`
+      `${process.env.BASE_URL}/cricket-match/live-scores`, {
+        headers: { "User-Agent": randomUserAgent.getRandom() },
+      }
     );
     const htmlContent = await response.text();
     const $ = cheerio.load(htmlContent);
-    const element = $('*[class="flex flex-col gap-px"]');
+    const element = $(liveSelectors.mainSelector);
     element.children().each((index, ele) => {
-      const matchDetail = $(ele).find(".flex.items-center.gap-1");
+      const matchDetail = $(ele).find(liveSelectors.matchDetails).text();
       const matchLink = $(ele).find("a").attr("href");
-      const team1 = $(ele).find(
-        ".text-cbTxtPrim.dark\\:text-cbWhite.whitespace-nowrap"
-      );
-      const team1Score = $(ele).find(
-        $(".font-medium.text-cbTxtPrim.dark\\:text-cbWhite.w-1\\/2")
-      );
-      const team2 = $(ele).find(
-        ".text-cbTxtSec.dark\\:text-cbTxtSec.whitespace-nowrap"
-      );
-      const team2Score = $(ele).find(
-        ".font-medium.text-cbTxtSec.dark\\:text-cbWhite.w-1\\/2"
-      );
-      const matchStatus = $(ele).find(".text-cbLive.dark\\:text-cbLiveDark");
+      const team1 = $(ele)
+        .find(liveSelectors.team1)
+        .text();
+      const team1Score = $(ele)
+        .find(liveSelectors.team1Score)
+        .text();
+      const team2 = $(ele)
+        .find(liveSelectors.team2)
+        .text();
+      const team2Score = $(ele)
+        .find(liveSelectors.team2Score)
+        .text();
+      const matchStatus =
+        $(ele).find(liveSelectors.matchStatusLive).text() ||
+        $(ele).find(liveSelectors.matchStatusResult).text();
+
       liveMatchData.push({
         id: index + 1,
-        matchDetail: matchDetail.text(),
-        matchLink: matchLink,
-        team1: team1.text(),
-        team2: team2.text(),
-        team1Score: team1Score.text(),
-        team2Score: team2Score.text(),
-        matchStatus: matchStatus.text(),
+        matchDetail,
+        matchLink,
+        team1,
+        team2,
+        team1Score,
+        team2Score,
+        matchStatus,
       });
     });
     return liveMatchData;
