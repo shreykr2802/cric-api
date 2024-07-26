@@ -2,13 +2,13 @@
   "compilerOptions": {
     "target": "es2021",
     "module": "commonjs",
-    "rootDir": "./src",
+    "rootDir": "api",
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*"],
+  "include": ["api/**/*"],
   "exclude": ["node_modules"]
 }
